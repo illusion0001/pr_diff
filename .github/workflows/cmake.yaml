@@ -1,0 +1,49 @@
+name: CMake
+
+on: [ push, pull_request, workflow_dispatch ]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      build_dir: build
+    permissions:
+      contents: write
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@main
+      with:
+        submodules: true
+        lfs: true
+
+    - name: Setup Adobe SDK
+      run: |
+        $fn = "AfterEffectsSDK_25.6_61_win"
+        $f = "$fn.zip"
+        $p = "${{ github.workspace }}/aesdk"
+        curl -fLJO https://github.com/illusion0001/Adobe-CXX-SDK/releases/download/ae/$f
+        7z x $f
+        cd "$fn"
+        ./extractzstd.bat
+        mv ae25.6_61.64bit.AfterEffectsSDK $p
+        ls $p/Examples
+
+    - name: Configure CMake
+      run: cmake -B ${{ env.build_dir }} -T ClangCL
+
+    - name: Build
+      run: cmake --build ${{ env.build_dir }} --config RelWithDebInfo
+
+    - name: Upload
+      if: github.event_name != 'pull_request'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        7z a ae_diff.zip bin/
+        $build = "build-${{ github.run_number }}"
+        gh release create $build ae_diff.zip --target ${{ github.sha }} -t "$build" -p

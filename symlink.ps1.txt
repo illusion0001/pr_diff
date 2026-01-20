@@ -1,0 +1,3 @@
+$FromDir = "./bin"
+$ToDir = "C:\Program Files\Adobe\Adobe Premiere Pro 2025\PlugIns\Common"
+New-Item -Path $FromDir -ItemType SymbolicLink -Value $ToDir
