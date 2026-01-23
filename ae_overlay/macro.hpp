@@ -84,25 +84,31 @@ static __attribute__((noinline)) void* MyRtlSecureZeroMemory(void* ptr, const un
 #endif
 
 #if !defined(ERR)
-#define ERR(FUNC)                                   \
-    do                                              \
-    {                                               \
-        if (!err)                                   \
-        {                                           \
-            err = (FUNC);                           \
-            verbose_printf(#FUNC " err %d\n", err); \
-        }                                           \
+#define ERR(FUNC)                                       \
+    do                                                  \
+    {                                                   \
+        if (!err)                                       \
+        {                                               \
+            err = (FUNC);                               \
+            if (err)                                    \
+            {                                           \
+                verbose_printf(#FUNC " err %d\n", err); \
+            }                                           \
+        }                                               \
     } while (0)
 #endif
 
 #if !defined(ERR2)
-#define ERR2(FUNC)                                   \
-    do                                               \
-    {                                                \
-        if (((err2 = (FUNC)) != A_Err_NONE) && !err) \
-        {                                            \
-            err = err2;                              \
-            verbose_printf(#FUNC " err %d\n", er2);  \
-        }                                            \
+#define ERR2(FUNC)                                        \
+    do                                                    \
+    {                                                     \
+        if (((err2 = (FUNC)) != A_Err_NONE) && !err)      \
+        {                                                 \
+            err = err2;                                   \
+            if (err2)                                     \
+            {                                             \
+                verbose_printf(#FUNC " err2 %d\n", err2); \
+            }                                             \
+        }                                                 \
     } while (0)
 #endif
